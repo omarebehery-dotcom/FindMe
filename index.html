@@ -2,17 +2,23 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>GPS Tracker</title>
-    <!-- مكتبة Leaflet للخرائط (CSS) -->
+    <title>Map Pro</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <div class="search-container">
+        <input type="text" id="destination" placeholder="اكتب المكان اللي عايز تروحه...">
+        <button onclick="calculateRoute()">بحث</button>
+    </div>
+    
     <div id="map"></div>
+    <div id="info"></div>
 
-    <!-- مكتبة Leaflet للخرائط (JS) -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
     <script src="map.js"></script>
 </body>
 </html>
