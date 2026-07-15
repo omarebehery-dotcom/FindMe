@@ -2,23 +2,31 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>Map Pro</title>
+    <title>FindMe Maps</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="search-container">
-        <input type="text" id="destination" placeholder="اكتب المكان اللي عايز تروحه...">
-        <button onclick="calculateRoute()">بحث</button>
+    <!-- شريط البحث العلوي -->
+    <div class="search-bar">
+        <input type="text" id="search-input" placeholder="Search here...">
+        <button onclick="searchPlace()">🔍</button>
     </div>
-    
+
+    <!-- أزرار الفئات -->
+    <div class="categories">
+        <button onclick="filter('restaurant')">🍽️ مطاعم</button>
+        <button onclick="filter('hotel')">🏨 فنادق</button>
+        <button onclick="filter('gas')">⛽ بنزين</button>
+    </div>
+
     <div id="map"></div>
-    <div id="info"></div>
+
+    <!-- زر الاتجاهات العائم -->
+    <button class="fab-direction" onclick="startNavigation()">➡️</button>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
     <script src="map.js"></script>
 </body>
 </html>
