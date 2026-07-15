@@ -1,19 +1,44 @@
-var map = L.map('map').setView([25.6872, 32.6396], 13); // إحداثيات الأقصر
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+\let map, directionsService, directionsRenderer;
+let userLocation;
+let currentMode = 'DRIVING';
+let destination = null;
 
-// إضافة موقعك الحالي
-navigator.geolocation.getCurrentPosition((pos) => {
-    L.marker([pos.coords.latitude, pos.coords.longitude]).addTo(map).bindPopup("أنت هنا");
-    map.setView([pos.coords.latitude, pos.coords.longitude], 14);
-});
+function initMap() {
+    directionsService = new google.maps.DirectionsService();
+    directionsRenderer = new google.maps.DirectionsRenderer();
 
-// دالة البحث الأساسية (باستخدام Nominatim)
-async function searchPlace() {
-    const query = document.getElementById('search-input').value;
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${query}&format=json`);
-    const data = await res.json();
-    if (data.length > 0) {
-        map.setView([data[0].lat, data[0].lon], 15);
-        L.marker([data[0].lat, data[0].lon]).addTo(map).bindPopup(data[0].display_name).openPopup();
-    }
+    navigator.geolocation.getCurrentPosition((pos) => {
+        userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        map = new google.maps.Map(document.getElementById("map"), { zoom: 15, center: userLocation });
+        directionsRenderer.setMap(map);
+        new google.maps.Marker({ position: userLocation, map: map, icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' });
+    });
+
+    const input = document.getElementById("destination-input");
+    const autocomplete = new google.maps.places.Autocomplete(input);
+    autocomplete.addListener("place_changed", () => {
+        destination = autocomplete.getPlace().geometry.location;
+        calculateRoute();
+    });
 }
+
+function calculateRoute() {
+    directionsService.route({
+        origin: userLocation,
+        destination: destination,
+        travelMode: google.maps.TravelMode[currentMode]
+    }, (response, status) => {
+        if (status === 'OK') {
+            directionsRenderer.setDirections(response);
+            const route = response.routes[0].legs[0];
+            document.getElementById('route-info').innerHTML = `الوقت: ${route.duration.text} | المسافة: ${route.distance.text}`;
+        }
+    });
+}
+
+function changeMode(mode) {
+    currentMode = mode;
+    if (destination) calculateRoute();
+}
+
+window.onload = initMap;
