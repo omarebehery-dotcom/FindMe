@@ -1,44 +1,35 @@
-\let map, directionsService, directionsRenderer;
-let userLocation;
-let currentMode = 'DRIVING';
-let destination = null;
-
+// 1. تحديد مكان المستخدم فور فتح الصفحة
 function initMap() {
-    directionsService = new google.maps.DirectionsService();
-    directionsRenderer = new google.maps.DirectionsRenderer();
-
-    navigator.geolocation.getCurrentPosition((pos) => {
-        userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        map = new google.maps.Map(document.getElementById("map"), { zoom: 15, center: userLocation });
-        directionsRenderer.setMap(map);
-        new google.maps.Marker({ position: userLocation, map: map, icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' });
-    });
-
-    const input = document.getElementById("destination-input");
-    const autocomplete = new google.maps.places.Autocomplete(input);
-    autocomplete.addListener("place_changed", () => {
-        destination = autocomplete.getPlace().geometry.location;
-        calculateRoute();
-    });
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition, showError);
+    } else {
+        alert("المتصفح لا يدعم تحديد الموقع.");
+    }
 }
 
-function calculateRoute() {
-    directionsService.route({
-        origin: userLocation,
-        destination: destination,
-        travelMode: google.maps.TravelMode[currentMode]
-    }, (response, status) => {
-        if (status === 'OK') {
-            directionsRenderer.setDirections(response);
-            const route = response.routes[0].legs[0];
-            document.getElementById('route-info').innerHTML = `الوقت: ${route.duration.text} | المسافة: ${route.distance.text}`;
-        }
-    });
+function showPosition(position) {
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+
+    // رسم الخريطة في موقعك
+    const map = L.map('map').setView([lat, lng], 16);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    
+    // إضافة ماركر لمكانك
+    L.marker([lat, lng]).addTo(map).bindPopup("أنت هنا!").openPopup();
+
+    // 2. جلب اسم المنطقة (Reverse Geocoding)
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+        .then(res => res.json())
+        .then(data => {
+            const areaName = data.display_name;
+            // عرض اسم المنطقة في واجهة التطبيق
+            document.getElementById('route-info').innerHTML = `📍 موقعك الحالي: ${areaName}`;
+        });
 }
 
-function changeMode(mode) {
-    currentMode = mode;
-    if (destination) calculateRoute();
+function showError(error) {
+    console.log("تعذر تحديد الموقع: " + error.message);
 }
 
 window.onload = initMap;
