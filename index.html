@@ -3,25 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FindMe Maps</title>
+    <title>FindMe - Professional</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="search-bar">
-        <input type="text" id="destination-input" placeholder="ابحث هنا...">
-    </div>
-    
     <div id="map"></div>
 
-    <div class="fab-container">
-        <button onclick="changeMode('DRIVING')">🚗</button>
-        <button onclick="changeMode('WALKING')">🚶</button>
-        <button onclick="changeMode('BICYCLING')">🚲</button>
+    <div class="ui-container">
+        <input type="text" id="search-box" placeholder="إلى أين تريد الذهاب؟">
+        
+        <div class="bottom-sheet">
+            <h3>أهلاً بك في FindMe</h3>
+            <p id="location-text">جاري تحديد موقعك...</p>
+            <div class="controls">
+                <button onclick="zoomToUser()">📍 موقعي</button>
+                <button class="active">🚗 تنقل</button>
+            </div>
+        </div>
     </div>
 
-    <div id="route-info"></div>
-
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places,directions"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="map.js"></script>
 </body>
 </html>
