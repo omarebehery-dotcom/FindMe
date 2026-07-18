@@ -1,85 +1,48 @@
 // =====================================
-// FindMe - speed.js
+// FindMe - speed.js (Fixed)
 // =====================================
 
 const speedBox = document.getElementById("speed");
 
-let lastSpeed = 0;
-
 // تحديث السرعة
-function updateSpeed(position){
+function updateSpeed(speedMS) {
 
-    let speed = position.coords.speed;
+    if (!speedBox) return;
 
-    if(speed == null || isNaN(speed)){
+    let speed = 0;
 
-        speed = lastSpeed;
+    if (speedMS !== null && speedMS !== undefined) {
 
-    }else{
-
-        speed = speed * 3.6; // m/s -> km/h
-
-        lastSpeed = speed;
+        speed = Math.round(speedMS * 3.6);
 
     }
-
-    speed = Math.round(speed);
 
     speedBox.innerHTML = speed + " km/h";
 
     // تغيير اللون حسب السرعة
 
-    if(speed < 40){
+    if (speed < 40) {
 
         speedBox.style.background = "#2ecc71";
 
     }
 
-    else if(speed < 80){
+    else if (speed < 80) {
 
         speedBox.style.background = "#f39c12";
 
     }
 
-    else if(speed < 120){
+    else if (speed < 120) {
 
         speedBox.style.background = "#e67e22";
 
     }
 
-    else{
+    else {
 
         speedBox.style.background = "#e74c3c";
 
     }
-
-}
-
-// مراقبة الموقع
-if(navigator.geolocation){
-
-    navigator.geolocation.watchPosition(
-
-        updateSpeed,
-
-        function(error){
-
-            console.log(error);
-
-            speedBox.innerHTML = "-- km/h";
-
-        },
-
-        {
-
-            enableHighAccuracy:true,
-
-            maximumAge:0,
-
-            timeout:10000
-
-        }
-
-    );
 
 }
