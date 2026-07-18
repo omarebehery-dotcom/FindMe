@@ -1,50 +1,23 @@
-// speed.js
+// =====================================
+// FindMe - speed.js
+// =====================================
 
-const speedElement = document.getElementById("speed");
+const speedBox = document.getElementById("speed");
 
 let lastSpeed = 0;
 
-function startSpeed() {
-
-    if (!navigator.geolocation) {
-
-        speedElement.innerHTML = "GPS";
-
-        return;
-
-    }
-
-    navigator.geolocation.watchPosition(
-
-        updateSpeed,
-
-        showSpeedError,
-
-        {
-
-            enableHighAccuracy: true,
-
-            maximumAge: 0,
-
-            timeout: 10000
-
-        }
-
-    );
-
-}
-
-function updateSpeed(position) {
+// تحديث السرعة
+function updateSpeed(position){
 
     let speed = position.coords.speed;
 
-    if (speed == null || isNaN(speed)) {
+    if(speed == null || isNaN(speed)){
 
         speed = lastSpeed;
 
-    } else {
+    }else{
 
-        speed = speed * 3.6;
+        speed = speed * 3.6; // m/s -> km/h
 
         lastSpeed = speed;
 
@@ -52,34 +25,61 @@ function updateSpeed(position) {
 
     speed = Math.round(speed);
 
-    speedElement.innerHTML = speed + " km/h";
+    speedBox.innerHTML = speed + " km/h";
 
     // تغيير اللون حسب السرعة
 
-    if (speed < 40) {
+    if(speed < 40){
 
-        speedElement.style.background = "#2ecc71";
-
-    }
-
-    else if (speed < 80) {
-
-        speedElement.style.background = "#f39c12";
+        speedBox.style.background = "#2ecc71";
 
     }
 
-    else {
+    else if(speed < 80){
 
-        speedElement.style.background = "#e74c3c";
+        speedBox.style.background = "#f39c12";
+
+    }
+
+    else if(speed < 120){
+
+        speedBox.style.background = "#e67e22";
+
+    }
+
+    else{
+
+        speedBox.style.background = "#e74c3c";
 
     }
 
 }
 
-function showSpeedError() {
+// مراقبة الموقع
+if(navigator.geolocation){
 
-    speedElement.innerHTML = "-- km/h";
+    navigator.geolocation.watchPosition(
+
+        updateSpeed,
+
+        function(error){
+
+            console.log(error);
+
+            speedBox.innerHTML = "-- km/h";
+
+        },
+
+        {
+
+            enableHighAccuracy:true,
+
+            maximumAge:0,
+
+            timeout:10000
+
+        }
+
+    );
 
 }
-
-startSpeed();
