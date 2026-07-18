@@ -1,19 +1,32 @@
-// settings.js
+// ====================================
+// FindMe - settings.js
+// ====================================
 
+const SETTINGS_KEY = "findme_settings";
+
+// الإعدادات الافتراضية
 let settings = {
 
     darkMode: false,
 
-    gpsEnabled: true
+    voice: true,
+
+    traffic: false,
+
+    satellite: false,
+
+    keepCentered: true,
+
+    language: "ar"
 
 };
 
 // تحميل الإعدادات
-function loadSettings() {
+function loadSettings(){
 
-    const data = localStorage.getItem("findme_settings");
+    const data = localStorage.getItem(SETTINGS_KEY);
 
-    if (data) {
+    if(data){
 
         settings = JSON.parse(data);
 
@@ -24,23 +37,30 @@ function loadSettings() {
 }
 
 // حفظ الإعدادات
-function saveSettings() {
+function saveSettings(){
 
     localStorage.setItem(
-        "findme_settings",
+
+        SETTINGS_KEY,
+
         JSON.stringify(settings)
+
     );
 
 }
 
 // تطبيق الإعدادات
-function applySettings() {
+function applySettings(){
 
-    if (settings.darkMode) {
+    // الوضع الليلي
+
+    if(settings.darkMode){
 
         document.body.classList.add("dark");
 
-    } else {
+    }
+
+    else{
 
         document.body.classList.remove("dark");
 
@@ -48,10 +68,70 @@ function applySettings() {
 
 }
 
-// تشغيل الوضع الليلي
-function toggleDarkMode() {
+// نافذة الإعدادات
+function openSettings(){
 
-    settings.darkMode = !settings.darkMode;
+    const choice = prompt(
+
+`========== FindMe ==========
+1 - الوضع الليلي
+
+2 - تشغيل/إيقاف الصوت
+
+3 - تشغيل/إيقاف المرور
+
+4 - تمركز الخريطة
+
+5 - معلومات التطبيق
+=============================`
+
+    );
+
+    switch(choice){
+
+        case "1":
+
+            settings.darkMode=!settings.darkMode;
+
+            break;
+
+        case "2":
+
+            settings.voice=!settings.voice;
+
+            break;
+
+        case "3":
+
+            settings.traffic=!settings.traffic;
+
+            toggleTraffic();
+
+            break;
+
+        case "4":
+
+            settings.keepCentered=!settings.keepCentered;
+
+            break;
+
+        case "5":
+
+            alert(
+
+`FindMe
+
+Version 1.0
+
+Professional GPS Navigation
+
+Developer: Omar`
+
+            );
+
+            break;
+
+    }
 
     saveSettings();
 
@@ -59,52 +139,12 @@ function toggleDarkMode() {
 
 }
 
-// تشغيل أو إيقاف GPS
-function toggleGPS() {
+// معرفة إذا كان الصوت يعمل
+function voiceEnabled(){
 
-    settings.gpsEnabled = !settings.gpsEnabled;
-
-    saveSettings();
-
-    if (settings.gpsEnabled) {
-
-        startGPS();
-
-        alert("GPS Enabled");
-
-    } else {
-
-        alert("GPS Disabled");
-
-    }
+    return settings.voice;
 
 }
 
-// نافذة الإعدادات
-function openSettings() {
-
-    const choice = prompt(
-
-`الإعدادات
-
-1 = الوضع الليلي
-
-2 = تشغيل/إيقاف GPS`
-
-    );
-
-    if (choice == "1") {
-
-        toggleDarkMode();
-
-    }
-
-    if (choice == "2") {
-
-        toggleGPS();
-
-    }
-
-}
-
+// تحميل الإعدادات عند فتح التطبيق
 loadSettings();
