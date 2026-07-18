@@ -1,14 +1,17 @@
-// voice.js
+// =====================================
+// FindMe - voice.js
+// =====================================
 
 let voiceEnabled = true;
 
-function speak(text) {
+// تشغيل الكلام
+function speak(text){
 
-    if (!voiceEnabled) return;
+    if(!voiceEnabled) return;
 
-    if (!('speechSynthesis' in window)) {
+    if(!("speechSynthesis" in window)){
 
-        console.log("Speech not supported");
+        console.log("Voice Not Supported");
 
         return;
 
@@ -16,32 +19,32 @@ function speak(text) {
 
     window.speechSynthesis.cancel();
 
-    const msg = new SpeechSynthesisUtterance();
+    const speech = new SpeechSynthesisUtterance();
 
-    msg.text = text;
+    speech.lang = "ar-EG";
 
-    msg.lang = "ar-EG";
+    speech.rate = 1;
 
-    msg.rate = 1;
+    speech.pitch = 1;
 
-    msg.pitch = 1;
+    speech.volume = 1;
 
-    msg.volume = 1;
+    speech.text = text;
 
-    window.speechSynthesis.speak(msg);
+    window.speechSynthesis.speak(speech);
 
 }
 
 // تشغيل وإيقاف الصوت
-function toggleVoice() {
+function toggleVoice(){
 
     voiceEnabled = !voiceEnabled;
 
-    if (voiceEnabled) {
+    if(voiceEnabled){
 
         speak("تم تشغيل التوجيه الصوتي");
 
-    } else {
+    }else{
 
         window.speechSynthesis.cancel();
 
@@ -51,51 +54,58 @@ function toggleVoice() {
 
 }
 
-// أوامر الملاحة
-function sayStart() {
+// بدء الملاحة
+function voiceStart(){
 
     speak("تم بدء الملاحة");
 
 }
 
-function sayArrived() {
+// الوصول
+function voiceArrived(){
 
     speak("لقد وصلت إلى وجهتك");
 
 }
 
-function sayTurnLeft() {
-
-    speak("انعطف يساراً");
-
-}
-
-function sayTurnRight() {
+// انعطف يمين
+function voiceRight(){
 
     speak("انعطف يميناً");
 
 }
 
-function sayStraight() {
+// انعطف يسار
+function voiceLeft(){
 
-    speak("استمر في السير للأمام");
+    speak("انعطف يساراً");
 
 }
 
-function sayUTurn() {
+// استمر
+function voiceStraight(){
+
+    speak("استمر للأمام");
+
+}
+
+// دوران للخلف
+function voiceUTurn(){
 
     speak("قم بالالتفاف للخلف عندما يكون ذلك آمناً");
 
 }
 
-function saySpeed(speed) {
+// سرعة
+function voiceSpeed(speed){
 
     speak("سرعتك الحالية " + speed + " كيلومتر في الساعة");
 
 }
 
+// تحذير سرعة
+function voiceWarning(){
 
+    speak("يرجى تخفيف السرعة");
 
-
-
-
+}
