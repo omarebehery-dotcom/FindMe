@@ -1,29 +1,58 @@
-// search.js
+// ====================================
+// FindMe - search.js
+// ====================================
 
 let searchMarker = null;
 
-async function searchPlace() {
+// البحث عند الضغط على Enter
+document.addEventListener("DOMContentLoaded", () => {
 
-    const text = document
+    const input = document.getElementById("searchInput");
+
+    input.addEventListener("keypress", function(e){
+
+        if(e.key === "Enter"){
+
+            searchPlace();
+
+        }
+
+    });
+
+});
+
+// البحث عن مكان
+
+async function searchPlace(){
+
+    const query = document
         .getElementById("searchInput")
         .value
         .trim();
 
-    if (text === "") return;
+    if(query === ""){
 
-    const url =
-        "https://nominatim.openstreetmap.org/search?format=json&q=" +
-        encodeURIComponent(text);
+        alert("اكتب اسم المكان");
 
-    try {
+        return;
 
-        const response = await fetch(url);
+    }
+
+    try{
+
+        const response = await fetch(
+
+            "https://nominatim.openstreetmap.org/search?format=json&limit=5&q="
+
+            + encodeURIComponent(query)
+
+        );
 
         const data = await response.json();
 
-        if (data.length === 0) {
+        if(data.length === 0){
 
-            alert("المكان غير موجود");
+            alert("لم يتم العثور على المكان");
 
             return;
 
@@ -35,23 +64,71 @@ async function searchPlace() {
 
         const lon = parseFloat(place.lon);
 
-        if (searchMarker) {
+        // حذف العلامة القديمة
+
+        if(searchMarker){
 
             map.removeLayer(searchMarker);
 
         }
 
+        // إضافة العلامة
+
         searchMarker = L.marker([lat, lon]).addTo(map);
 
-        searchMarker.bindPopup(place.display_name).openPopup();
+        searchMarker.bindPopup(
 
-        map.setView([lat, lon], 16);
+            "<b>" +
 
-    } catch (e) {
+            place.display_name +
 
-        console.log(e);
+            "</b><br><br>" +
 
-        alert("حدث خطأ");
+            "<button onclick='navigateTo("+
+
+            lat+
+
+            ","+
+
+            lon+
+
+            ")'>🚗 ابدأ الملاحة</button>"
+
+        ).openPopup();
+
+        // تحريك الخريطة
+
+        map.flyTo([lat, lon], 16,{
+
+            animate:true,
+
+            duration:2
+
+        });
+
+    }
+
+    catch(error){
+
+        console.log(error);
+
+        alert("حدث خطأ أثناء البحث");
+
+    }
+
+}
+
+// حذف نتيجة البحث
+
+function clearSearch(){
+
+    document.getElementById("searchInput").value="";
+
+    if(searchMarker){
+
+        map.removeLayer(searchMarker);
+
+        searchMarker=null;
 
     }
 
