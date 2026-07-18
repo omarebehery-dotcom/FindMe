@@ -93,3 +93,9 @@ function saySpeed(speed) {
     speak("سرعتك الحالية " + speed + " كيلومتر في الساعة");
 
 }
+
+
+
+
+
+
