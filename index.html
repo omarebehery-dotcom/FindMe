@@ -1,31 +1,65 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FindMe - Professional</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <title>FindMe</title>
+
     <link rel="stylesheet" href="style.css">
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet/dist/leaflet.css"
+    />
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
 <body>
 
-    <div id="map"></div>
-
-    <div class="ui-container">
-        <input type="text" id="search-box" placeholder="إلى أين تريد الذهاب؟">
-        
-        <div class="bottom-sheet">
-            <h3>أهلاً بك في FindMe</h3>
-            <p id="location-text">جاري تحديد موقعك...</p>
-            
-            <div class="controls">
-                <button onclick="zoomToUser()">موقعي</button>
-                <button class="active">التنقل</button>
-            </div>
-        </div>
+    <!-- Splash Screen -->
+    <div id="splash">
+        <h1>FindMe</h1>
+        <p>Professional GPS Navigation</p>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Header -->
+    <header>
+        <h2>📍 FindMe</h2>
+
+        <div id="speed">
+            0 km/h
+        </div>
+    </header>
+
+    <!-- Map -->
+    <div id="map"></div>
+
+    <!-- Bottom Menu -->
+    <div class="bottom-bar">
+
+        <button onclick="goHome()">
+            🏠
+            <span>Home</span>
+        </button>
+
+        <button onclick="centerLocation()">
+            📍
+            <span>GPS</span>
+        </button>
+
+        <button onclick="toggleTraffic()">
+            🚦
+            <span>Traffic</span>
+        </button>
+
+        <button onclick="openSettings()">
+            ⚙️
+            <span>Settings</span>
+        </button>
+
+    </div>
+
     <script src="map.js"></script>
+
 </body>
 </html>
