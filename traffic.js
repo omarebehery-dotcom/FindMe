@@ -1,14 +1,17 @@
-// traffic.js
+// =====================================
+// FindMe - traffic.js
+// =====================================
 
 let trafficLayer = null;
 
 let trafficEnabled = false;
 
-function toggleTraffic() {
+// تشغيل وإيقاف طبقة المرور
+function toggleTraffic(){
 
-    if (trafficEnabled) {
+    if(trafficEnabled){
 
-        if (trafficLayer) {
+        if(trafficLayer){
 
             map.removeLayer(trafficLayer);
 
@@ -16,40 +19,37 @@ function toggleTraffic() {
 
         trafficEnabled = false;
 
-        alert("Traffic OFF");
+        alert("تم إيقاف طبقة المرور");
 
-    } else {
-
-        trafficLayer = L.tileLayer(
-
-            "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-
-            {
-
-                maxZoom: 19,
-
-                opacity: 0.6
-
-            }
-
-        );
-
-        trafficLayer.addTo(map);
-
-        trafficEnabled = true;
-
-        alert("Traffic ON");
+        return;
 
     }
 
+    trafficLayer = L.tileLayer(
+
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+
+        {
+
+            maxZoom:19,
+
+            opacity:0.5
+
+        }
+
+    );
+
+    trafficLayer.addTo(map);
+
+    trafficEnabled = true;
+
+    alert("تم تشغيل طبقة المرور");
+
 }
 
+// معرفة حالة المرور
+function isTrafficEnabled(){
 
+    return trafficEnabled;
 
-
-
-
-
-
-
-
+}
