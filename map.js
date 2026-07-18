@@ -1,104 +1,187 @@
-// إنشاء الخريطة
-const map = L.map('map').setView([30.0444, 31.2357], 13);
+// ===============================
+// FindMe - map.js
+// ===============================
 
-// طبقة OpenStreetMap
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19
-}).addTo(map);
+// إنشاء الخريطة
+
+const map = L.map("map", {
+    zoomControl: false
+}).setView([30.0444, 31.2357], 14);
+
+// طبقة الخريطة
+
+L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {
+        maxZoom: 19,
+        attribution: ""
+    }
+).addTo(map);
+
+// Marker المستخدم
 
 let userMarker = null;
 
-// إخفاء شاشة البداية
-window.onload = () => {
-    setTimeout(() => {
-        document.getElementById("splash").style.display = "none";
-    }, 2000);
+// دائرة الدقة
 
-    startGPS();
-};
+let accuracyCircle = null;
+
+// الموقع الحالي
+
+let currentLat = null;
+let currentLng = null;
 
 // تشغيل GPS
+
 function startGPS() {
 
     if (!navigator.geolocation) {
-        alert("GPS غير مدعوم في هذا المتصفح");
+
+        alert("GPS غير مدعوم");
+
         return;
+
     }
 
-    navigator.geolocation.watchPosition(updateLocation, locationError, {
-        enableHighAccuracy: true,
-        maximumAge: 0,
-        timeout: 10000
-    });
+    navigator.geolocation.watchPosition(
+
+        updatePosition,
+
+        gpsError,
+
+        {
+
+            enableHighAccuracy: true,
+
+            timeout: 10000,
+
+            maximumAge: 0
+
+        }
+
+    );
 
 }
 
 // تحديث الموقع
-function updateLocation(position) {
 
-    const lat = position.coords.latitude;
-    const lng = position.coords.longitude;
+function updatePosition(position) {
 
-    // السرعة
-    let speed = position.coords.speed;
+    currentLat = position.coords.latitude;
+    currentLng = position.coords.longitude;
 
-    if (speed == null || isNaN(speed)) {
-        speed = 0;
-    } else {
-        speed = (speed * 3.6).toFixed(0);
-    }
+    let accuracy = position.coords.accuracy;
 
-    document.getElementById("speed").innerHTML = speed + " km/h";
+    // أول مرة
 
     if (userMarker == null) {
 
-        userMarker = L.marker([lat, lng]).addTo(map);
+        userMarker = L.marker([currentLat, currentLng])
+            .addTo(map)
+            .bindPopup("📍 موقعك الحالي");
 
     } else {
 
-        userMarker.setLatLng([lat, lng]);
+        userMarker.setLatLng([currentLat, currentLng]);
 
     }
 
-    map.setView([lat, lng], 17);
+    // دائرة الدقة
+
+    if (accuracyCircle == null) {
+
+        accuracyCircle = L.circle(
+            [currentLat, currentLng],
+            {
+
+                radius: accuracy,
+
+                color: "#2196F3",
+
+                fillColor: "#2196F3",
+
+                fillOpacity: .15
+
+            }
+
+        ).addTo(map);
+
+    } else {
+
+        accuracyCircle.setLatLng([currentLat, currentLng]);
+
+        accuracyCircle.setRadius(accuracy);
+
+    }
+
+    map.setView([currentLat, currentLng], 17);
 
 }
 
-// أخطاء GPS
-function locationError(error) {
+// خطأ GPS
 
-    alert("تعذر الحصول على الموقع");
+function gpsError(error) {
+
+    switch(error.code){
+
+        case 1:
+
+            alert("يجب السماح للموقع");
+
+            break;
+
+        case 2:
+
+            alert("تعذر تحديد الموقع");
+
+            break;
+
+        case 3:
+
+            alert("انتهى وقت انتظار GPS");
+
+            break;
+
+        default:
+
+            alert("خطأ غير معروف");
+
+    }
 
 }
 
-// زر GPS
-function centerLocation() {
+// زر الرجوع للموقع
 
-    if (userMarker) {
-        map.setView(userMarker.getLatLng(), 17);
+function centerLocation(){
+
+    if(currentLat!=null){
+
+        map.setView([currentLat,currentLng],18);
+
     }
 
 }
 
 // الصفحة الرئيسية
-function goHome() {
 
-    if (userMarker) {
-        map.setView(userMarker.getLatLng(), 17);
-    }
+function goHome(){
 
-}
-
-// إعدادات
-function openSettings() {
-
-    alert("قريباً");
+    centerLocation();
 
 }
 
-// المرور
-function toggleTraffic() {
+// إخفاء شاشة البداية
 
-    alert("ميزة المرور قريباً");
+window.onload=function(){
 
-}
+    setTimeout(function(){
+
+        let splash=document.getElementById("splash");
+
+        splash.style.display="none";
+
+    },2000);
+
+    startGPS();
+
+};
