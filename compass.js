@@ -1,82 +1,111 @@
-// compass.js
+// =====================================
+// FindMe - compass.js
+// =====================================
 
-let compassArrow = document.getElementById("compassArrow");
-let compassText = document.getElementById("compassText");
+const compassArrow = document.getElementById("compassArrow");
+const compassText = document.getElementById("compassText");
 
-function rotateCompass(heading) {
+function rotateCompass(angle){
 
-    if (compassArrow) {
-        compassArrow.style.transform = `rotate(${-heading}deg)`;
+    if(compassArrow){
+
+        compassArrow.style.transform =
+        `rotate(${-angle}deg)`;
+
     }
 
-    if (compassText) {
-        compassText.innerHTML = Math.round(heading) + "°";
+    if(compassText){
+
+        compassText.innerHTML =
+        Math.round(angle) + "°";
+
     }
 
 }
 
-function startCompass() {
+// تشغيل البوصلة
+function startCompass(){
 
-    if (!window.DeviceOrientationEvent) {
+    if(!window.DeviceOrientationEvent){
 
-        if (compassText) {
-            compassText.innerHTML = "Compass Not Supported";
-        }
+        compassText.innerHTML =
+        "غير مدعومة";
 
         return;
-    }
-
-    // iPhone
-    if (typeof DeviceOrientationEvent.requestPermission === "function") {
-
-        DeviceOrientationEvent.requestPermission()
-
-            .then(permission => {
-
-                if (permission === "granted") {
-
-                    window.addEventListener(
-                        "deviceorientation",
-                        compassHandler,
-                        true
-                    );
-
-                }
-
-            })
-
-            .catch(console.error);
 
     }
 
-    // Android
-    else {
+    // أجهزة iPhone
+
+    if(typeof DeviceOrientationEvent.requestPermission ===
+    "function"){
+
+        DeviceOrientationEvent
+        .requestPermission()
+
+        .then(permission=>{
+
+            if(permission==="granted"){
+
+                window.addEventListener(
+
+                    "deviceorientation",
+
+                    compassHandler,
+
+                    true
+
+                );
+
+            }
+
+        })
+
+        .catch(console.error);
+
+    }
+
+    // أجهزة Android
+
+    else{
 
         window.addEventListener(
+
             "deviceorientationabsolute",
+
             compassHandler,
+
             true
+
         );
 
         window.addEventListener(
+
             "deviceorientation",
+
             compassHandler,
+
             true
+
         );
 
     }
 
 }
 
-function compassHandler(event) {
+// تحديث الاتجاه
+
+function compassHandler(event){
 
     let heading;
 
-    if (event.webkitCompassHeading !== undefined) {
+    if(event.webkitCompassHeading !== undefined){
 
         heading = event.webkitCompassHeading;
 
-    } else {
+    }
+
+    else{
 
         heading = 360 - event.alpha;
 
@@ -85,5 +114,7 @@ function compassHandler(event) {
     rotateCompass(heading);
 
 }
+
+// بدء البوصلة
 
 startCompass();
