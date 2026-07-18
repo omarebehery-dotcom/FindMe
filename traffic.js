@@ -1,29 +1,30 @@
-// =====================================
-// FindMe - traffic.js
-// =====================================
-
-let trafficLayer = null;
+// ======================================
+// FindMe Professional Traffic
+// traffic.js
+// ======================================
 
 let trafficEnabled = false;
+let trafficLayer = null;
 
-// تشغيل وإيقاف طبقة المرور
-function toggleTraffic(){
+// تشغيل / إيقاف المرور
+function toggleTraffic() {
 
-    if(trafficEnabled){
+    if (trafficEnabled) {
 
-        if(trafficLayer){
+        disableTraffic();
 
-            map.removeLayer(trafficLayer);
+    } else {
 
-        }
-
-        trafficEnabled = false;
-
-        alert("تم إيقاف طبقة المرور");
-
-        return;
+        enableTraffic();
 
     }
+
+}
+
+// تشغيل
+function enableTraffic() {
+
+    trafficEnabled = true;
 
     trafficLayer = L.tileLayer(
 
@@ -31,9 +32,15 @@ function toggleTraffic(){
 
         {
 
-            maxZoom:19,
+            maxZoom: 20,
 
-            opacity:0.5
+            opacity: 0.35,
+
+            updateWhenZooming: true,
+
+            updateWhenIdle: true,
+
+            keepBuffer: 8
 
         }
 
@@ -41,15 +48,62 @@ function toggleTraffic(){
 
     trafficLayer.addTo(map);
 
-    trafficEnabled = true;
-
-    alert("تم تشغيل طبقة المرور");
+    showTrafficStatus("🟢 Traffic ON");
 
 }
 
-// معرفة حالة المرور
-function isTrafficEnabled(){
+// إيقاف
+function disableTraffic() {
 
-    return trafficEnabled;
+    trafficEnabled = false;
+
+    if (trafficLayer) {
+
+        map.removeLayer(trafficLayer);
+
+        trafficLayer = null;
+
+    }
+
+    showTrafficStatus("⚪ Traffic OFF");
+
+}
+
+// رسالة أسفل الشاشة
+function showTrafficStatus(text) {
+
+    let status = document.getElementById("trafficStatus");
+
+    if (!status) {
+
+        status = document.createElement("div");
+
+        status.id = "trafficStatus";
+
+        status.style.position = "absolute";
+        status.style.bottom = "110px";
+        status.style.left = "50%";
+        status.style.transform = "translateX(-50%)";
+        status.style.padding = "12px 20px";
+        status.style.background = "#222";
+        status.style.color = "#fff";
+        status.style.borderRadius = "12px";
+        status.style.fontWeight = "bold";
+        status.style.zIndex = "9999";
+        status.style.boxShadow = "0 0 15px rgba(0,0,0,.4)";
+
+        document.body.appendChild(status);
+
+    }
+
+    status.innerHTML = text;
+
+    clearTimeout(status.timer);
+
+    status.timer = setTimeout(() => {
+
+        status.remove();
+
+    }, 2500);
 
 }
