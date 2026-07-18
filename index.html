@@ -1,65 +1,155 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FindMe</title>
 
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet/dist/leaflet.css"
-    />
+<title>FindMe</title>
 
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<link rel="stylesheet" href="style.css">
+
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
 </head>
+
 <body>
 
-    <!-- Splash Screen -->
-    <div id="splash">
-        <h1>FindMe</h1>
-        <p>Professional GPS Navigation</p>
-    </div>
+<!-- شاشة البداية -->
 
-    <!-- Header -->
-    <header>
-        <h2>📍 FindMe</h2>
+<div id="splash">
 
-        <div id="speed">
-            0 km/h
-        </div>
-    </header>
+<img src="images/logo.png" id="logo">
 
-    <!-- Map -->
-    <div id="map"></div>
+<h1>FindMe</h1>
 
-    <!-- Bottom Menu -->
-    <div class="bottom-bar">
+<p>GPS Navigation</p>
 
-        <button onclick="goHome()">
-            🏠
-            <span>Home</span>
-        </button>
+</div>
 
-        <button onclick="centerLocation()">
-            📍
-            <span>GPS</span>
-        </button>
+<!-- Header -->
 
-        <button onclick="toggleTraffic()">
-            🚦
-            <span>Traffic</span>
-        </button>
+<header>
 
-        <button onclick="openSettings()">
-            ⚙️
-            <span>Settings</span>
-        </button>
+<div class="logo">
 
-    </div>
+📍 FindMe
 
-    <script src="map.js"></script>
+</div>
+
+<div id="speed">
+
+0 km/h
+
+</div>
+
+</header>
+
+<!-- البحث -->
+
+<div class="search-box">
+
+<input
+type="text"
+id="searchInput"
+placeholder="ابحث عن مكان...">
+
+<button onclick="searchPlace()">
+
+🔍
+
+</button>
+
+</div>
+
+<!-- الخريطة -->
+
+<div id="map"></div>
+
+<!-- البوصلة -->
+
+<div id="compass">
+
+<img src="images/compass.png"
+
+id="compassArrow">
+
+<div id="compassText">
+
+0°
+
+</div>
+
+</div>
+
+<!-- شريط الأسفل -->
+
+<div class="bottom-bar">
+
+<button onclick="goHome()">
+
+🏠
+
+<span>الرئيسية</span>
+
+</button>
+
+<button onclick="centerLocation()">
+
+📍
+
+<span>موقعي</span>
+
+</button>
+
+<button onclick="toggleTraffic()">
+
+🚦
+
+<span>المرور</span>
+
+</button>
+
+<button onclick="toggleVoice()">
+
+🔊
+
+<span>الصوت</span>
+
+</button>
+
+<button onclick="openSettings()">
+
+⚙️
+
+<span>الإعدادات</span>
+
+</button>
+
+</div>
+
+<script src="map.js"></script>
+
+<script src="search.js"></script>
+
+<script src="navigation.js"></script>
+
+<script src="traffic.js"></script>
+
+<script src="voice.js"></script>
+
+<script src="speed.js"></script>
+
+<script src="compass.js"></script>
+
+<script src="settings.js"></script>
 
 </body>
+
 </html>
