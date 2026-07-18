@@ -1,69 +1,101 @@
-// navigation.js
+// ====================================
+// FindMe - navigation.js
+// ====================================
 
-let routeLine = null;
+// ضع مفتاح OpenRouteService هنا
+const ORS_API_KEY = "YOUR_API_KEY";
 
-const ORS_API_KEY = "PUT_YOUR_OPENROUTESERVICE_API_KEY_HERE";
+let routeLayer = null;
 
-async function navigateTo(lat, lng) {
+// رسم الطريق
 
-    if (!userMarker) {
-        alert("لم يتم تحديد موقعك بعد");
+async function navigateTo(destinationLat, destinationLng){
+
+    if(currentLat == null || currentLng == null){
+
+        alert("انتظر حتى يتم تحديد موقعك");
+
         return;
+
     }
 
-    const start = userMarker.getLatLng();
+    try{
 
-    const url =
-        "https://api.openrouteservice.org/v2/directions/driving-car/geojson";
+        const response = await fetch(
 
-    const body = {
-        coordinates: [
-            [start.lng, start.lat],
-            [lng, lat]
-        ]
-    };
+            "https://api.openrouteservice.org/v2/directions/driving-car/geojson",
 
-    try {
+            {
 
-        const response = await fetch(url, {
+                method:"POST",
 
-            method: "POST",
+                headers:{
 
-            headers: {
+                    "Authorization":ORS_API_KEY,
 
-                "Authorization": ORS_API_KEY,
+                    "Content-Type":"application/json"
 
-                "Content-Type": "application/json"
+                },
 
-            },
+                body:JSON.stringify({
 
-            body: JSON.stringify(body)
+                    coordinates:[
 
-        });
+                        [currentLng,currentLat],
+
+                        [destinationLng,destinationLat]
+
+                    ]
+
+                })
+
+            }
+
+        );
 
         const data = await response.json();
 
-        if (routeLine) {
-            map.removeLayer(routeLine);
+        if(routeLayer){
+
+            map.removeLayer(routeLayer);
+
         }
 
-        routeLine = L.geoJSON(data, {
+        routeLayer = L.geoJSON(data,{
 
-            style: {
+            style:{
 
-                color: "#2196F3",
+                color:"#007BFF",
 
-                weight: 6
+                weight:6
 
             }
 
         }).addTo(map);
 
-        map.fitBounds(routeLine.getBounds());
+        map.fitBounds(routeLayer.getBounds());
 
-    } catch (e) {
+        // معلومات الرحلة
 
-        console.error(e);
+        if(data.features.length){
+
+            const summary = data.features[0].properties.summary;
+
+            const distance = (summary.distance/1000).toFixed(1);
+
+            const duration = Math.round(summary.duration/60);
+
+            alert(
+                "المسافة: " + distance + " كم\n" +
+                "الوقت المتوقع: " + duration + " دقيقة"
+            );
+        }
+
+    }
+
+    catch(error){
+
+        console.log(error);
 
         alert("تعذر رسم المسار");
 
@@ -71,5 +103,16 @@ async function navigateTo(lat, lng) {
 
 }
 
-// مثال
-// navigateTo(30.0444,31.2357);
+// حذف الطريق
+
+function clearRoute(){
+
+    if(routeLayer){
+
+        map.removeLayer(routeLayer);
+
+        routeLayer = null;
+
+    }
+
+}
