@@ -148,3 +148,7 @@ function voiceEnabled(){
 
 // تحميل الإعدادات عند فتح التطبيق
 loadSettings();
+
+
+
+
