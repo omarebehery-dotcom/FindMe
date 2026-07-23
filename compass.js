@@ -5,6 +5,9 @@
 const compassArrow = document.getElementById("compassArrow");
 const compassText = document.getElementById("compassText");
 
+let compassRunning = false;
+
+// تدوير البوصلة
 function rotateCompass(angle){
 
     if(compassArrow){
@@ -23,29 +26,68 @@ function rotateCompass(angle){
 
 }
 
+// تحديث الاتجاه
+function compassHandler(event){
+
+    let heading = null;
+
+    if(event.webkitCompassHeading !== undefined){
+
+        heading = event.webkitCompassHeading;
+
+    }
+
+    else if(event.absolute === true && event.alpha !== null){
+
+        heading = 360 - event.alpha;
+
+    }
+
+    else if(event.alpha !== null){
+
+        heading = 360 - event.alpha;
+
+    }
+
+    if(heading !== null){
+
+        rotateCompass(heading);
+
+    }
+
+}
+
 // تشغيل البوصلة
 function startCompass(){
 
-    if(!window.DeviceOrientationEvent){
-
-        compassText.innerHTML =
-        "غير مدعومة";
+    if(compassRunning){
 
         return;
 
     }
 
-    // أجهزة iPhone
+    compassRunning = true;
 
-    if(typeof DeviceOrientationEvent.requestPermission ===
-    "function"){
+    if(!window.DeviceOrientationEvent){
 
-        DeviceOrientationEvent
-        .requestPermission()
+        if(compassText){
+
+            compassText.innerHTML = "غير مدعومة";
+
+        }
+
+        return;
+
+    }
+
+    // iPhone
+    if(typeof DeviceOrientationEvent.requestPermission === "function"){
+
+        DeviceOrientationEvent.requestPermission()
 
         .then(permission=>{
 
-            if(permission==="granted"){
+            if(permission === "granted"){
 
                 window.addEventListener(
 
@@ -65,8 +107,7 @@ function startCompass(){
 
     }
 
-    // أجهزة Android
-
+    // Android
     else{
 
         window.addEventListener(
@@ -93,28 +134,49 @@ function startCompass(){
 
 }
 
-// تحديث الاتجاه
+// إيقاف البوصلة
+function stopCompass(){
 
-function compassHandler(event){
+    window.removeEventListener(
 
-    let heading;
+        "deviceorientation",
 
-    if(event.webkitCompassHeading !== undefined){
+        compassHandler,
 
-        heading = event.webkitCompassHeading;
+        true
 
-    }
+    );
 
-    else{
+    window.removeEventListener(
 
-        heading = 360 - event.alpha;
+        "deviceorientationabsolute",
 
-    }
+        compassHandler,
 
-    rotateCompass(heading);
+        true
+
+    );
+
+    compassRunning = false;
 
 }
 
-// بدء البوصلة
+// زر البوصلة
+function openCompass(){
 
-startCompass();
+    startCompass();
+
+    if(compassText){
+
+        compassText.innerHTML = "🧭";
+
+    }
+
+}
+
+// تشغيل تلقائي
+window.addEventListener("load",function(){
+
+    startCompass();
+
+});
