@@ -1,49 +1,58 @@
 // ===============================
 // FindMe - map.js
+// Part 1
 // ===============================
 
 // إنشاء الخريطة
-
 const map = L.map("map", {
-    zoomControl: false
-}).setView([30.0444, 31.2357], 14);
+    zoomControl: false,
+    preferCanvas: true
+}).setView([30.0444, 31.2357], 15);
 
 // طبقة الخريطة
-
 L.tileLayer(
     "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     {
-        maxZoom: 19,
-        attribution: ""
+        maxZoom: 20,
+        attribution: "&copy; OpenStreetMap"
     }
 ).addTo(map);
 
-// Marker المستخدم
+// المتغيرات
+let currentLat = null;
+let currentLng = null;
+let currentSpeed = 0;
+let currentHeading = 0;
 
-let userMarker = null;
-
-// دائرة الدقة
+let followUser = true;
 
 let accuracyCircle = null;
 
-// الموقع الحالي
+// السيارة
+const carIcon = L.divIcon({
+    className: "car-icon",
+    html: "🚗",
+    iconSize: [40,40],
+    iconAnchor: [20,20]
+});
 
-let currentLat = null;
-let currentLng = null;
+let carMarker = null;
+
+// GPS
+let watchId = null;
 
 // تشغيل GPS
+function startGPS(){
 
-function startGPS() {
+    if(!navigator.geolocation){
 
-    if (!navigator.geolocation) {
-
-        alert("GPS غير مدعوم");
+        alert("هذا الجهاز لا يدعم GPS");
 
         return;
 
     }
 
-    navigator.geolocation.watchPosition(
+    watchId = navigator.geolocation.watchPosition(
 
         updatePosition,
 
@@ -51,137 +60,318 @@ function startGPS() {
 
         {
 
-            enableHighAccuracy: true,
+            enableHighAccuracy:true,
 
-            timeout: 10000,
+            maximumAge:0,
 
-            maximumAge: 0
+            timeout:10000
 
         }
 
     );
 
 }
+// ===============================
+// FindMe - map.js
+// Part 2
+// ===============================
 
 // تحديث الموقع
-
-function updatePosition(position) {
+function updatePosition(position){
 
     currentLat = position.coords.latitude;
     currentLng = position.coords.longitude;
 
-    let accuracy = position.coords.accuracy;
+    // تحويل السرعة إلى km/h
+    currentSpeed = position.coords.speed
+        ? position.coords.speed * 3.6
+        : 0;
 
-    // أول مرة
+    currentHeading = position.coords.heading || 0;
 
-    if (userMarker == null) {
+    // إنشاء السيارة
+    if(carMarker == null){
 
-        userMarker = L.marker([currentLat, currentLng])
-            .addTo(map)
-            .bindPopup("📍 موقعك الحالي");
+        carMarker = L.marker(
+            [currentLat, currentLng],
+            {
+                icon: carIcon
+            }
+        ).addTo(map);
 
-    } else {
+    }else{
 
-        userMarker.setLatLng([currentLat, currentLng]);
+        carMarker.setLatLng(
+            [currentLat, currentLng]
+        );
+
+    }
+
+    // تدوير السيارة
+    const icon = document.querySelector(".car-icon");
+
+    if(icon){
+
+        icon.style.transform =
+            `rotate(${currentHeading}deg)`;
 
     }
 
     // دائرة الدقة
+    const accuracy = position.coords.accuracy;
 
-    if (accuracyCircle == null) {
+    if(accuracyCircle == null){
 
         accuracyCircle = L.circle(
-            [currentLat, currentLng],
+            [currentLat,currentLng],
             {
-
-                radius: accuracy,
-
-                color: "#2196F3",
-
-                fillColor: "#2196F3",
-
-                fillOpacity: .15
-
+                radius:accuracy,
+                color:"#1976D2",
+                fillColor:"#1976D2",
+                fillOpacity:.15,
+                weight:2
             }
-
         ).addTo(map);
 
-    } else {
+    }else{
 
-        accuracyCircle.setLatLng([currentLat, currentLng]);
+        accuracyCircle.setLatLng(
+            [currentLat,currentLng]
+        );
 
-        accuracyCircle.setRadius(accuracy);
+        accuracyCircle.setRadius(
+            accuracy
+        );
 
     }
 
-    map.setView([currentLat, currentLng], 17);
+    // تحديث السرعة
+    if(typeof updateSpeed === "function"){
+
+        updateSpeed(currentSpeed);
+
+    }
+
+    // تحديث السيارة
+    if(typeof updateCar === "function"){
+
+        updateCar(
+            currentLat,
+            currentLng,
+            currentHeading
+        );
+
+    }
+        // تحديث الملاحة
+    if(typeof updateNavigation === "function"){
+
+        updateNavigation(
+            currentLat,
+            currentLng
+        );
+
+    }
+
+    // تنبيهات الطريق
+    if(typeof checkAlerts === "function"){
+
+        checkAlerts(
+            currentLat,
+            currentLng
+        );
+
+    }
+
+    // متابعة المستخدم
+    if(followUser){
+
+        map.panTo(
+
+            [currentLat,currentLng],
+
+            {
+
+                animate:true
+
+            }
+
+        );
+
+    }
+
+    // تحديث الطريق أثناء الملاحة
+    if(typeof updateRoute === "function"){
+
+        updateRoute();
+
+    }
 
 }
 
-// خطأ GPS
-
-function gpsError(error) {
+// أخطاء GPS
+function gpsError(error){
 
     switch(error.code){
 
-        case 1:
+        case error.PERMISSION_DENIED:
 
-            alert("يجب السماح للموقع");
-
+            alert("يرجى السماح للتطبيق بالوصول إلى الموقع.");
             break;
 
-        case 2:
+        case error.POSITION_UNAVAILABLE:
 
-            alert("تعذر تحديد الموقع");
-
+            alert("تعذر تحديد الموقع الحالي.");
             break;
 
-        case 3:
+        case error.TIMEOUT:
 
-            alert("انتهى وقت انتظار GPS");
-
+            alert("انتهى وقت انتظار تحديد الموقع.");
             break;
 
         default:
 
-            alert("خطأ غير معروف");
+            alert("حدث خطأ أثناء تحديد الموقع.");
 
     }
 
 }
 
-// زر الرجوع للموقع
-
+// زر موقعي
 function centerLocation(){
 
-    if(currentLat!=null){
+    if(currentLat == null){
 
-        map.setView([currentLat,currentLng],18);
+        return;
 
     }
 
+    followUser = true;
+
+    map.flyTo(
+
+        [currentLat,currentLng],
+
+        18,
+
+        {
+
+            animate:true,
+
+            duration:1
+
+        }
+
+    );
+
 }
+// ===============================
+// FindMe - map.js
+// Part 4
+// ===============================
 
-// الصفحة الرئيسية
-
+// الرئيسية
 function goHome(){
 
     centerLocation();
 
 }
 
-// إخفاء شاشة البداية
+// تكبير
+function zoomIn(){
 
-window.onload=function(){
+    map.zoomIn();
 
-    setTimeout(function(){
+}
 
-        let splash=document.getElementById("splash");
+// تصغير
+function zoomOut(){
 
-        splash.style.display="none";
+    map.zoomOut();
 
-    },2000);
+}
+
+// إيقاف متابعة GPS
+function stopGPS(){
+
+    if(watchId !== null){
+
+        navigator.geolocation.clearWatch(watchId);
+
+        watchId = null;
+
+    }
+
+}
+
+// عند تحريك الخريطة يدوياً
+map.on("dragstart",function(){
+
+    followUser = false;
+
+});
+
+// الضغط مرتين يرجع متابعة الموقع
+map.on("dblclick",function(){
+
+    followUser = true;
+
+    centerLocation();
+
+});
+
+// الحصول على الموقع الحالي
+function getCurrentLocation(){
+
+    return{
+
+        lat:currentLat,
+
+        lng:currentLng,
+
+        speed:currentSpeed,
+
+        heading:currentHeading
+
+    };
+
+}
+
+// التأكد أن الموقع جاهز
+function hasLocation(){
+
+    return currentLat !== null &&
+           currentLng !== null;
+
+}
+
+// تشغيل التطبيق
+window.addEventListener("load",function(){
+
+    const splash = document.getElementById("splash");
 
     startGPS();
 
-};
+    if(splash){
+
+        setTimeout(function(){
+
+            splash.style.opacity = "0";
+
+            setTimeout(function(){
+
+                splash.style.display = "none";
+
+            },500);
+
+        },1500);
+
+    }
+
+});
+
+// عند إغلاق الصفحة
+window.addEventListener("beforeunload",function(){
+
+    stopGPS();
+
+});
