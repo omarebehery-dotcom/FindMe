@@ -1,19 +1,18 @@
 // ======================================
-// FindMe Professional Traffic
-// traffic.js
+// FindMe - traffic.js
 // ======================================
 
 let trafficEnabled = false;
 let trafficLayer = null;
 
 // تشغيل / إيقاف المرور
-function toggleTraffic() {
+function toggleTraffic(){
 
-    if (trafficEnabled) {
+    if(trafficEnabled){
 
         disableTraffic();
 
-    } else {
+    }else{
 
         enableTraffic();
 
@@ -22,25 +21,24 @@ function toggleTraffic() {
 }
 
 // تشغيل
-function enableTraffic() {
+function enableTraffic(){
+
+    if(trafficEnabled) return;
 
     trafficEnabled = true;
 
+    // طبقة بديلة (حتى يتم إضافة مزود مرور حقيقي)
     trafficLayer = L.tileLayer(
 
         "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
 
         {
 
-            maxZoom: 20,
+            maxZoom:20,
 
-            opacity: 0.35,
+            opacity:0.45,
 
-            updateWhenZooming: true,
-
-            updateWhenIdle: true,
-
-            keepBuffer: 8
+            attribution:"© OpenStreetMap"
 
         }
 
@@ -48,16 +46,16 @@ function enableTraffic() {
 
     trafficLayer.addTo(map);
 
-    showTrafficStatus("🟢 Traffic ON");
+    showTrafficStatus("🟢 تم تشغيل طبقة المرور");
 
 }
 
 // إيقاف
-function disableTraffic() {
+function disableTraffic(){
 
     trafficEnabled = false;
 
-    if (trafficLayer) {
+    if(trafficLayer){
 
         map.removeLayer(trafficLayer);
 
@@ -65,32 +63,39 @@ function disableTraffic() {
 
     }
 
-    showTrafficStatus("⚪ Traffic OFF");
+    showTrafficStatus("⚪ تم إيقاف طبقة المرور");
 
 }
 
-// رسالة أسفل الشاشة
-function showTrafficStatus(text) {
+// حالة المرور
+function isTrafficEnabled(){
+
+    return trafficEnabled;
+
+}
+
+// الرسالة
+function showTrafficStatus(text){
 
     let status = document.getElementById("trafficStatus");
 
-    if (!status) {
+    if(!status){
 
         status = document.createElement("div");
 
         status.id = "trafficStatus";
 
-        status.style.position = "absolute";
-        status.style.bottom = "110px";
-        status.style.left = "50%";
-        status.style.transform = "translateX(-50%)";
-        status.style.padding = "12px 20px";
-        status.style.background = "#222";
-        status.style.color = "#fff";
-        status.style.borderRadius = "12px";
-        status.style.fontWeight = "bold";
-        status.style.zIndex = "9999";
-        status.style.boxShadow = "0 0 15px rgba(0,0,0,.4)";
+        status.style.position="fixed";
+        status.style.bottom="100px";
+        status.style.left="50%";
+        status.style.transform="translateX(-50%)";
+        status.style.padding="12px 18px";
+        status.style.background="#222";
+        status.style.color="#fff";
+        status.style.borderRadius="12px";
+        status.style.fontWeight="bold";
+        status.style.zIndex="99999";
+        status.style.boxShadow="0 0 10px rgba(0,0,0,.4)";
 
         document.body.appendChild(status);
 
@@ -100,10 +105,14 @@ function showTrafficStatus(text) {
 
     clearTimeout(status.timer);
 
-    status.timer = setTimeout(() => {
+    status.timer = setTimeout(function(){
 
-        status.remove();
+        if(status){
 
-    }, 2500);
+            status.remove();
+
+        }
+
+    },2500);
 
 }
