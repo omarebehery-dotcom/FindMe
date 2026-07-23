@@ -2,35 +2,17 @@
 // FindMe - search.js
 // ====================================
 
-let searchMarker = null;
+let destination = null;
+let destinationMarker = null;
 
-// البحث عند الضغط على Enter
-document.addEventListener("DOMContentLoaded", () => {
+// البحث عن مكان
+async function searchPlace() {
 
     const input = document.getElementById("searchInput");
 
-    input.addEventListener("keypress", function(e){
+    const query = input.value.trim();
 
-        if(e.key === "Enter"){
-
-            searchPlace();
-
-        }
-
-    });
-
-});
-
-// البحث عن مكان
-
-async function searchPlace(){
-
-    const query = document
-        .getElementById("searchInput")
-        .value
-        .trim();
-
-    if(query === ""){
+    if (query === "") {
 
         alert("اكتب اسم المكان");
 
@@ -38,97 +20,179 @@ async function searchPlace(){
 
     }
 
-    try{
+    try {
 
         const response = await fetch(
 
-            "https://nominatim.openstreetmap.org/search?format=json&limit=5&q="
+            "https://nominatim.openstreetmap.org/search?format=json&limit=1&q=" +
 
-            + encodeURIComponent(query)
+            encodeURIComponent(query)
 
         );
 
         const data = await response.json();
 
-        if(data.length === 0){
+        if (data.length === 0) {
 
-            alert("لم يتم العثور على المكان");
+            alert("المكان غير موجود");
 
             return;
 
         }
 
-        const place = data[0];
+        destination = {
 
-        const lat = parseFloat(place.lat);
+            lat: parseFloat(data[0].lat),
 
-        const lon = parseFloat(place.lon);
+            lng: parseFloat(data[0].lon),
 
-        // حذف العلامة القديمة
+            name: data[0].display_name
 
-        if(searchMarker){
+        };
+                if (destinationMarker) {
 
-            map.removeLayer(searchMarker);
+            map.removeLayer(destinationMarker);
 
         }
 
-        // إضافة العلامة
+        destinationMarker = L.marker(
 
-        searchMarker = L.marker([lat, lon]).addTo(map);
+            [destination.lat, destination.lng]
 
-        searchMarker.bindPopup(
+        ).addTo(map);
 
-            "<b>" +
+        destinationMarker.bindPopup(
 
-            place.display_name +
-
-            "</b><br><br>" +
-
-            "<button onclick='navigateTo("+
-
-            lat+
-
-            ","+
-
-            lon+
-
-            ")'>🚗 ابدأ الملاحة</button>"
+            "📍 " + destination.name
 
         ).openPopup();
 
-        // تحريك الخريطة
+        map.flyTo(
 
-        map.flyTo([lat, lon], 16,{
+            [destination.lat, destination.lng],
 
-            animate:true,
+            16,
 
-            duration:2
+            {
+
+                animate: true,
+
+                duration: 1
+
+            }
+
+        );
+
+        // بدء الملاحة تلقائياً
+        if (typeof drawRoute === "function") {
+
+            drawRoute(
+
+                currentLat,
+
+                currentLng,
+
+                destination.lat,
+
+                destination.lng
+
+            );
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        alert("تعذر البحث");
+
+    }
+
+}
+// البحث عند الضغط على Enter
+document.addEventListener("DOMContentLoaded", function () {
+
+    const input = document.getElementById("searchInput");
+
+    if (input) {
+
+        input.addEventListener("keydown", function (e) {
+
+            if (e.key === "Enter") {
+
+                searchPlace();
+
+            }
 
         });
 
     }
 
-    catch(error){
+});
 
-        console.log(error);
+// حذف الوجهة
+function clearSearch() {
 
-        alert("حدث خطأ أثناء البحث");
+    if (destinationMarker) {
+
+        map.removeLayer(destinationMarker);
+
+        destinationMarker = null;
+
+    }
+
+    destination = null;
+
+    const input = document.getElementById("searchInput");
+
+    if (input) {
+
+        input.value = "";
 
     }
 
 }
 
-// حذف نتيجة البحث
+// الحصول على الوجهة الحالية
+function getDestination() {
 
-function clearSearch(){
+    return destination;
 
-    document.getElementById("searchInput").value="";
+}
 
-    if(searchMarker){
+// هل توجد وجهة؟
+function hasDestination() {
 
-        map.removeLayer(searchMarker);
+    return destination !== null;
 
-        searchMarker=null;
+}
+
+// بدء الملاحة من زر "ابدأ الملاحة"
+function startNavigation() {
+
+    if (!destination) {
+
+        alert("ابحث عن وجهة أولاً");
+
+        return;
+
+    }
+
+    if (typeof drawRoute === "function") {
+
+        drawRoute(
+
+            currentLat,
+
+            currentLng,
+
+            destination.lat,
+
+            destination.lng
+
+        );
 
     }
 
