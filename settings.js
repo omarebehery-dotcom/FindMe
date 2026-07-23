@@ -1,154 +1,199 @@
 // ====================================
-// FindMe - settings.js
+// FindMe - search.js
 // ====================================
 
-const SETTINGS_KEY = "findme_settings";
+let destination = null;
+let destinationMarker = null;
 
-// الإعدادات الافتراضية
-let settings = {
+// البحث عن مكان
+async function searchPlace() {
 
-    darkMode: false,
+    const input = document.getElementById("searchInput");
 
-    voice: true,
+    const query = input.value.trim();
 
-    traffic: false,
+    if (query === "") {
 
-    satellite: false,
+        alert("اكتب اسم المكان");
 
-    keepCentered: true,
-
-    language: "ar"
-
-};
-
-// تحميل الإعدادات
-function loadSettings(){
-
-    const data = localStorage.getItem(SETTINGS_KEY);
-
-    if(data){
-
-        settings = JSON.parse(data);
+        return;
 
     }
 
-    applySettings();
+    try {
 
-}
+        const response = await fetch(
 
-// حفظ الإعدادات
-function saveSettings(){
+            "https://nominatim.openstreetmap.org/search?format=json&limit=1&q=" +
 
-    localStorage.setItem(
+            encodeURIComponent(query)
 
-        SETTINGS_KEY,
+        );
 
-        JSON.stringify(settings)
+        const data = await response.json();
 
-    );
+        if (data.length === 0) {
 
-}
+            alert("المكان غير موجود");
 
-// تطبيق الإعدادات
-function applySettings(){
+            return;
 
-    // الوضع الليلي
+        }
 
-    if(settings.darkMode){
+        destination = {
 
-        document.body.classList.add("dark");
+            lat: parseFloat(data[0].lat),
 
-    }
+            lng: parseFloat(data[0].lon),
 
-    else{
+            name: data[0].display_name
 
-        document.body.classList.remove("dark");
+        };
+                if (destinationMarker) {
 
-    }
+            map.removeLayer(destinationMarker);
 
-}
+        }
 
-// نافذة الإعدادات
-function openSettings(){
+        destinationMarker = L.marker(
 
-    const choice = prompt(
+            [destination.lat, destination.lng]
 
-`========== FindMe ==========
-1 - الوضع الليلي
+        ).addTo(map);
 
-2 - تشغيل/إيقاف الصوت
+        destinationMarker.bindPopup(
 
-3 - تشغيل/إيقاف المرور
+            "📍 " + destination.name
 
-4 - تمركز الخريطة
+        ).openPopup();
 
-5 - معلومات التطبيق
-=============================`
+        map.flyTo(
 
-    );
+            [destination.lat, destination.lng],
 
-    switch(choice){
+            16,
 
-        case "1":
+            {
 
-            settings.darkMode=!settings.darkMode;
+                animate: true,
 
-            break;
+                duration: 1
 
-        case "2":
+            }
 
-            settings.voice=!settings.voice;
+        );
 
-            break;
+        // بدء الملاحة تلقائياً
+        if (typeof drawRoute === "function") {
 
-        case "3":
+            drawRoute(
 
-            settings.traffic=!settings.traffic;
+                currentLat,
 
-            toggleTraffic();
+                currentLng,
 
-            break;
+                destination.lat,
 
-        case "4":
-
-            settings.keepCentered=!settings.keepCentered;
-
-            break;
-
-        case "5":
-
-            alert(
-
-`FindMe
-
-Version 1.0
-
-Professional GPS Navigation
-
-Developer: Omar`
+                destination.lng
 
             );
 
-            break;
+        }
 
     }
 
-    saveSettings();
+    catch (error) {
 
-    applySettings();
+        console.error(error);
+
+        alert("تعذر البحث");
+
+    }
+
+}
+// البحث عند الضغط على Enter
+document.addEventListener("DOMContentLoaded", function () {
+
+    const input = document.getElementById("searchInput");
+
+    if (input) {
+
+        input.addEventListener("keydown", function (e) {
+
+            if (e.key === "Enter") {
+
+                searchPlace();
+
+            }
+
+        });
+
+    }
+
+});
+
+// حذف الوجهة
+function clearSearch() {
+
+    if (destinationMarker) {
+
+        map.removeLayer(destinationMarker);
+
+        destinationMarker = null;
+
+    }
+
+    destination = null;
+
+    const input = document.getElementById("searchInput");
+
+    if (input) {
+
+        input.value = "";
+
+    }
 
 }
 
-// معرفة إذا كان الصوت يعمل
-function voiceEnabled(){
+// الحصول على الوجهة الحالية
+function getDestination() {
 
-    return settings.voice;
+    return destination;
 
 }
 
-// تحميل الإعدادات عند فتح التطبيق
-loadSettings();
+// هل توجد وجهة؟
+function hasDestination() {
 
+    return destination !== null;
 
+}
 
+// بدء الملاحة من زر "ابدأ الملاحة"
+function startNavigation() {
 
+    if (!destination) {
+
+        alert("ابحث عن وجهة أولاً");
+
+        return;
+
+    }
+
+    if (typeof drawRoute === "function") {
+
+        drawRoute(
+
+            currentLat,
+
+            currentLng,
+
+            destination.lat,
+
+            destination.lng
+
+        );
+
+    }
+
+}
