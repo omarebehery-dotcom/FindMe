@@ -197,8 +197,3 @@ function startNavigation() {
     }
 
 }
-
-
-
-
-

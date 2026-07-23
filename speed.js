@@ -54,14 +54,3 @@ function getCurrentSpeed(){
         "0 km/h";
 
 }
-
-
-
-
-
-
-
-
-
-
-
