@@ -6,16 +6,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>FindMe</title>
+<title>📍 FindMe</title>
 
 <link rel="stylesheet" href="style.css">
 
 <link rel="stylesheet"
 href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"/>
 
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script defer src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
 
 </head>
 
@@ -56,13 +61,45 @@ href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <input
 type="text"
 id="searchInput"
-placeholder="ابحث عن مكان...">
+placeholder="ابحث عن أي مكان...">
 
-<button onclick="searchPlace()">
+<button type="button" onclick="searchPlace()">
 
 🔍
 
 </button>
+
+<button type="button" onclick="clearSearch()">
+
+❌
+
+</button>
+
+</div>
+
+<!-- أزرار الملاحة -->
+
+<div class="nav-buttons">
+
+<button onclick="startNavigation()">
+
+🚗 ابدأ الملاحة
+
+</button>
+
+<button onclick="stopNavigation()">
+
+🛑 إيقاف
+
+</button>
+
+</div>
+
+<!-- معلومات الرحلة -->
+
+<div id="tripInfo">
+
+المسافة: -- | الوقت: --
 
 </div>
 
@@ -124,6 +161,14 @@ placeholder="ابحث عن مكان...">
 
 </button>
 
+<button onclick="openCompass()">
+
+🧭
+
+<span>البوصلة</span>
+
+</button>
+
 <button onclick="openSettings()">
 
 ⚙️
@@ -134,14 +179,19 @@ placeholder="ابحث عن مكان...">
 
 </div>
 
-<script src="map.js"></script>
-<script src="search.js"></script>
-<script src="navigation.js"></script>
-<script src="traffic.js"></script>
-<script src="voice.js"></script>
-<script src="speed.js"></script>
-<script src="compass.js"></script>
-<script src="settings.js"></script>
+<!-- ملفات JavaScript -->
+
+<script defer src="map.js"></script>
+<script defer src="car.js"></script>
+<script defer src="speed.js"></script>
+<script defer src="search.js"></script>
+<script defer src="routing.js"></script>
+<script defer src="navigation.js"></script>
+<script defer src="alerts.js"></script>
+<script defer src="voice.js"></script>
+<script defer src="traffic.js"></script>
+<script defer src="compass.js"></script>
+<script defer src="settings.js"></script>
 
 </body>
 
