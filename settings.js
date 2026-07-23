@@ -1,199 +1,185 @@
 // ====================================
-// FindMe - search.js
+// FindMe - settings.js
 // ====================================
 
-let destination = null;
-let destinationMarker = null;
+const SETTINGS_KEY = "findme_settings";
 
-// البحث عن مكان
-async function searchPlace() {
+// الإعدادات الافتراضية
+let settings = {
 
-    const input = document.getElementById("searchInput");
+    darkMode:false,
 
-    const query = input.value.trim();
+    voice:true,
 
-    if (query === "") {
+    traffic:false,
 
-        alert("اكتب اسم المكان");
+    satellite:false,
 
-        return;
+    keepCentered:true,
+
+    language:"ar"
+
+};
+
+// تحميل الإعدادات
+function loadSettings(){
+
+    const data = localStorage.getItem(SETTINGS_KEY);
+
+    if(data){
+
+        settings = JSON.parse(data);
 
     }
 
-    try {
+    applySettings();
 
-        const response = await fetch(
+}
 
-            "https://nominatim.openstreetmap.org/search?format=json&limit=1&q=" +
+// حفظ
+function saveSettings(){
 
-            encodeURIComponent(query)
+    localStorage.setItem(
 
-        );
+        SETTINGS_KEY,
 
-        const data = await response.json();
+        JSON.stringify(settings)
 
-        if (data.length === 0) {
+    );
 
-            alert("المكان غير موجود");
+}
 
-            return;
+// تطبيق الإعدادات
+function applySettings(){
 
-        }
+    // الوضع الليلي
+    if(settings.darkMode){
 
-        destination = {
+        document.body.classList.add("dark");
 
-            lat: parseFloat(data[0].lat),
+    }else{
 
-            lng: parseFloat(data[0].lon),
+        document.body.classList.remove("dark");
 
-            name: data[0].display_name
+    }
 
-        };
-                if (destinationMarker) {
+    // متابعة الموقع
+    if(typeof followUser !== "undefined"){
 
-            map.removeLayer(destinationMarker);
+        followUser = settings.keepCentered;
 
-        }
+    }
 
-        destinationMarker = L.marker(
+    // الصوت
+    if(typeof voiceEnabled !== "undefined"){
 
-            [destination.lat, destination.lng]
+        voiceEnabled = settings.voice;
 
-        ).addTo(map);
+    }
 
-        destinationMarker.bindPopup(
+}
 
-            "📍 " + destination.name
+// نافذة الإعدادات
+function openSettings(){
 
-        ).openPopup();
+    const choice = prompt(
 
-        map.flyTo(
+`========== FindMe ==========
 
-            [destination.lat, destination.lng],
+1 - الوضع الليلي
 
-            16,
+2 - تشغيل / إيقاف الصوت
 
-            {
+3 - تشغيل / إيقاف المرور
 
-                animate: true,
+4 - متابعة الموقع
 
-                duration: 1
+5 - معلومات التطبيق
+
+============================`
+
+    );
+
+    switch(choice){
+
+        case "1":
+
+            settings.darkMode=!settings.darkMode;
+
+            break;
+
+        case "2":
+
+            settings.voice=!settings.voice;
+
+            break;
+
+        case "3":
+
+            settings.traffic=!settings.traffic;
+
+            if(typeof toggleTraffic==="function"){
+
+                toggleTraffic();
 
             }
 
-        );
+            break;
 
-        // بدء الملاحة تلقائياً
-        if (typeof drawRoute === "function") {
+        case "4":
 
-            drawRoute(
+            settings.keepCentered=!settings.keepCentered;
 
-                currentLat,
+            break;
 
-                currentLng,
+        case "5":
 
-                destination.lat,
+            alert(
 
-                destination.lng
+`FindMe
+
+Version 1.0
+
+Professional GPS Navigation
+
+Developer: Omar`
 
             );
 
-        }
+            return;
 
     }
 
-    catch (error) {
+    saveSettings();
 
-        console.error(error);
-
-        alert("تعذر البحث");
-
-    }
+    applySettings();
 
 }
-// البحث عند الضغط على Enter
-document.addEventListener("DOMContentLoaded", function () {
 
-    const input = document.getElementById("searchInput");
+// هل الصوت يعمل؟
+function isVoiceEnabled(){
 
-    if (input) {
+    return settings.voice;
 
-        input.addEventListener("keydown", function (e) {
+}
 
-            if (e.key === "Enter") {
+// هل الوضع الليلي يعمل؟
+function isDarkMode(){
 
-                searchPlace();
+    return settings.darkMode;
 
-            }
+}
 
-        });
+// هل المرور يعمل؟
+function isTrafficEnabled(){
 
-    }
+    return settings.traffic;
+
+}
+
+// تحميل الإعدادات
+window.addEventListener("load",function(){
+
+    loadSettings();
 
 });
-
-// حذف الوجهة
-function clearSearch() {
-
-    if (destinationMarker) {
-
-        map.removeLayer(destinationMarker);
-
-        destinationMarker = null;
-
-    }
-
-    destination = null;
-
-    const input = document.getElementById("searchInput");
-
-    if (input) {
-
-        input.value = "";
-
-    }
-
-}
-
-// الحصول على الوجهة الحالية
-function getDestination() {
-
-    return destination;
-
-}
-
-// هل توجد وجهة؟
-function hasDestination() {
-
-    return destination !== null;
-
-}
-
-// بدء الملاحة من زر "ابدأ الملاحة"
-function startNavigation() {
-
-    if (!destination) {
-
-        alert("ابحث عن وجهة أولاً");
-
-        return;
-
-    }
-
-    if (typeof drawRoute === "function") {
-
-        drawRoute(
-
-            currentLat,
-
-            currentLng,
-
-            destination.lat,
-
-            destination.lng
-
-        );
-
-    }
-
-}
