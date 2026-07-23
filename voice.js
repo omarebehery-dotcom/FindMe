@@ -2,16 +2,63 @@
 // FindMe - voice.js
 // =====================================
 
+// هل الصوت مفعل؟
 let voiceEnabled = true;
 
-// تشغيل الكلام
+// اللغة
+const voiceLang = "ar-EG";
+
+// تشغيل / إيقاف الصوت
+function toggleVoice(){
+
+    voiceEnabled = !voiceEnabled;
+
+    const buttons = document.querySelectorAll(".bottom-bar button");
+
+    buttons.forEach(btn=>{
+
+        if(btn.innerText.includes("الصوت")){
+
+            if(voiceEnabled){
+
+                btn.style.color="#1976D2";
+
+            }else{
+
+                btn.style.color="#888";
+
+            }
+
+        }
+
+    });
+
+    speak(
+
+        voiceEnabled ?
+
+        "تم تشغيل التوجيه الصوتي"
+
+        :
+
+        "تم إيقاف التوجيه الصوتي"
+
+    );
+
+}
+
+// نطق أي رسالة
 function speak(text){
 
-    if(!voiceEnabled) return;
+    if(!voiceEnabled){
+
+        return;
+
+    }
 
     if(!("speechSynthesis" in window)){
 
-        console.log("Voice Not Supported");
+        console.log("Speech API غير مدعومة");
 
         return;
 
@@ -19,93 +66,101 @@ function speak(text){
 
     window.speechSynthesis.cancel();
 
-    const speech = new SpeechSynthesisUtterance();
+    const utter = new SpeechSynthesisUtterance(text);
 
-    speech.lang = "ar-EG";
+    utter.lang = voiceLang;
 
-    speech.rate = 1;
+    utter.rate = 1;
 
-    speech.pitch = 1;
+    utter.pitch = 1;
 
-    speech.volume = 1;
+    utter.volume = 1;
 
-    speech.text = text;
-
-    window.speechSynthesis.speak(speech);
+    window.speechSynthesis.speak(utter);
 
 }
 
-// تشغيل وإيقاف الصوت
-function toggleVoice(){
+// تعليمات الملاحة
+function navigationVoice(distance){
 
-    voiceEnabled = !voiceEnabled;
+    if(!voiceEnabled){
 
-    if(voiceEnabled){
+        return;
 
-        speak("تم تشغيل التوجيه الصوتي");
+    }
 
-    }else{
+    if(distance > 500){
 
-        window.speechSynthesis.cancel();
+        speak(
 
-        alert("تم إيقاف التوجيه الصوتي");
+            "استمر في السير"
+
+        );
+
+    }
+
+    else if(distance > 200){
+
+        speak(
+
+            "اقتربت من وجهتك"
+
+        );
+
+    }
+
+    else if(distance > 50){
+
+        speak(
+
+            "بعد قليل ستصل"
+
+        );
+
+    }
+
+    else{
+
+        speak(
+
+            "لقد وصلت إلى وجهتك"
+
+        );
 
     }
 
 }
 
-// بدء الملاحة
-function voiceStart(){
+// تشغيل صوت البداية
+function welcomeVoice(){
 
-    speak("تم بدء الملاحة");
+    if(voiceEnabled){
 
-}
+        speak(
 
-// الوصول
-function voiceArrived(){
+            "مرحباً بك في تطبيق فايند مي"
 
-    speak("لقد وصلت إلى وجهتك");
+        );
 
-}
-
-// انعطف يمين
-function voiceRight(){
-
-    speak("انعطف يميناً");
+    }
 
 }
 
-// انعطف يسار
-function voiceLeft(){
+// تشغيل عند فتح التطبيق
+window.addEventListener(
 
-    speak("انعطف يساراً");
+    "load",
 
-}
+    function(){
 
-// استمر
-function voiceStraight(){
+        setTimeout(
 
-    speak("استمر للأمام");
+            welcomeVoice,
 
-}
+            2000
 
-// دوران للخلف
-function voiceUTurn(){
+        );
 
-    speak("قم بالالتفاف للخلف عندما يكون ذلك آمناً");
+    }
 
-}
-
-// سرعة
-function voiceSpeed(speed){
-
-    speak("سرعتك الحالية " + speed + " كيلومتر في الساعة");
-
-}
-
-// تحذير سرعة
-function voiceWarning(){
-
-    speak("يرجى تخفيف السرعة");
-
-}
+);
